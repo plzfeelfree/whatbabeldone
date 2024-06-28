@@ -1,0 +1,54 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Function to annotate the charts
+def annotate_years(ax, session_years):
+    for session, year in session_years.items():
+        y_value = ax.lines[0].get_ydata()[list(ax.lines[0].get_xdata()).index(session)]
+        ax.annotate(f'{session} ({year})', 
+                    xy=(session, y_value),
+                    xytext=(session, y_value + 0.2),
+                    arrowprops=dict(facecolor='black', shrink=0.05), fontsize=8)
+
+# Load the CSV file
+new_csv_file_path = '/Users/newjet/Desktop/USChinaIdealpointestimatesAll_Sep2023.csv'
+new_data = pd.read_csv(new_csv_file_path)
+
+# Filter the data for sessions 36 to 77
+filtered_data = new_data[(new_data['Countryname'].isin(['United States', 'China'])) & 
+                         (new_data['session'] >= 36) & 
+                         (new_data['session'] <= 77)]
+
+# Pivot the data to have sessions as index and countries as columns
+pivot_filtered_data = filtered_data.pivot(index='session', columns='Countryname', values='IdealPointAll')
+
+# Calculate the vertical distance between the ideal points of the US and China
+pivot_filtered_data['VerticalDistance'] = abs(pivot_filtered_data['United States'] - pivot_filtered_data['China'])
+
+# Annotate session numbers with years for the filtered range
+session_years_filtered = {36: 1981, 50: 1995, 77: 2023}
+
+# Plot the ideal points chart for sessions 36 to 77
+plt.figure(figsize=(12, 6))
+plt.plot(pivot_filtered_data.index, pivot_filtered_data['United States'], label='United States')
+plt.plot(pivot_filtered_data.index, pivot_filtered_data['China'], label='China')
+plt.xlabel('Session')
+plt.ylabel('Ideal Point')
+plt.title('Ideal Points of the United States and China Over Sessions (1981-2023)')
+plt.legend()
+plt.grid(True)
+ax = plt.gca()
+annotate_years(ax, session_years_filtered)
+plt.show()
+
+# Plot the vertical distance chart for sessions 36 to 77
+plt.figure(figsize=(12, 6))
+plt.plot(pivot_filtered_data.index, pivot_filtered_data['VerticalDistance'], label='Vertical Distance', marker='o')
+plt.xlabel('Session')
+plt.ylabel('Vertical Distance')
+plt.title('Vertical Distance Between Ideal Points of the United States and China Over Sessions (1981-2023)')
+plt.legend()
+plt.grid(True)
+ax = plt.gca()
+annotate_years(ax, session_years_filtered)
+plt.show()
