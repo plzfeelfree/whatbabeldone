@@ -1,0 +1,28 @@
+import pandas as pd
+
+# Load the dataset
+file_path = '/mnt/data/case dataset.csv'
+data = pd.read_csv(file_path)
+
+# Group by year and calculate win/lose rate
+summary = data.groupby('year')['win/loss'].agg(['mean', 'count'])
+summary.columns = ['win_rate', 'total_cases']
+
+# Calculate lose_rate
+summary['lose_rate'] = 1 - summary['win_rate']
+
+# Reset index to have a clean DataFrame
+summary = summary.reset_index()
+
+import matplotlib.pyplot as plt
+
+# Plotting win/lose rate by year
+plt.figure(figsize=(12, 6))
+plt.plot(summary['year'], summary['win_rate'], marker='o', label='Win Rate')
+plt.plot(summary['year'], summary['lose_rate'], marker='x', label='Lose Rate')
+plt.xlabel('Year')
+plt.ylabel('Rate')
+plt.title('Win/Lose Rate of US Companies in Chinese Courts by Year')
+plt.legend()
+plt.grid(True)
+plt.show()
